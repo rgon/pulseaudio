@@ -510,33 +510,37 @@ int pa__init(pa_module *m) {
     // rgon
     const char *n;
     void * np;
-    n = pa_modargs_get_value(ma, "custom_loopback_source", NULL); // default = NULL
-    if (n && !(np = pa_namereg_get(m->core, n, PA_NAMEREG_SOURCE))) {
+    n = pa_modargs_get_value(ma, "custom_loopback_source", NULL);
+    if (n && !(np = pa_namereg_get(m->core, n, PA_NAMEREG_SOURCE))) { // Good to validate this here since if not, no logs will be produced until the device outputs sound (and not when the module is loaded, which is ideal)
     // if (n && !(pa_namereg_get(m->core, n, PA_NAMEREG_SOURCE))) {
         pa_log("No such custom source.");
         goto fail;
     } else if (n) {
-      u->custom_loopback_source = n;
-      pa_log_warn("Started with custom source: %s", n);
+      char *stringcopy = malloc(1 + strlen (n))
+      strcpy (stringcopy, n);
+      u->custom_loopback_source = stringcopy;
+
+      pa_log_warn("Started with custom source: %s", stringcopy);
       // pa_log_notice(n);
     } else {
       pa_log_warn("Bluetooth-policy with default source.");
     }
-    u->custom_loopback_source = "12354EJAIDJ";
-    const char *s;
-    s = pa_modargs_get_value(ma, "custom_loopback_sink", NULL);
-    if (s && !(np = pa_namereg_get(m->core, s, PA_NAMEREG_SINK))) {
+
+    n = pa_modargs_get_value(ma, "custom_loopback_sink", NULL);
+    if (n && !(np = pa_namereg_get(m->core, n, PA_NAMEREG_SINK))) {
     // if (s && !(pa_namereg_get(m->core, s, PA_NAMEREG_SINK))) {
         pa_log("No such custom sink.");
         goto fail;
     } else if (s) {
-      u->custom_loopback_sink = s;
-      pa_log_warn("Started with custom sink: %s", s);
+      char *stringcopy = malloc(1 + strlen (n))
+      strcpy (stringcopy, n);
+      u->custom_loopback_sink = stringcopy;
+
+      pa_log_warn("Started with custom sink: %s", stringcopy);
       // pa_log_notice(s);
     } else {
       pa_log_warn("Bluetooth-policy with default sink.");
     }
-    u->custom_loopback_sink = "ABC98634ABC";
     // endof rgon
 
     u->will_need_revert_card_map = pa_hashmap_new(pa_idxset_trivial_hash_func, pa_idxset_trivial_compare_func);
