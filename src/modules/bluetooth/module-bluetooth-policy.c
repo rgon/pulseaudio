@@ -516,7 +516,7 @@ int pa__init(pa_module *m) {
         pa_log("No such custom source.");
         goto fail;
     } else if (n) {
-      char *stringcopy = malloc(1 + strlen (n))
+      char *stringcopy = malloc(1 + strlen (n));
       strcpy (stringcopy, n);
       u->custom_loopback_source = stringcopy;
 
@@ -532,7 +532,7 @@ int pa__init(pa_module *m) {
         pa_log("No such custom sink.");
         goto fail;
     } else if (n) {
-      char *stringcopy = malloc(1 + strlen (n))
+      char *stringcopy = malloc(1 + strlen (n));
       strcpy (stringcopy, n);
       u->custom_loopback_sink = stringcopy;
 
