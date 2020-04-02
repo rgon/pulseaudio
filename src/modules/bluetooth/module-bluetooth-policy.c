@@ -19,6 +19,41 @@
   along with PulseAudio; if not, see <http://www.gnu.org/licenses/>.
 ***/
 
+/*
+TODO:
+Model / Sink ID / to autoconnect using loopback
+  MODIFY: static pa_hook_result_t source_put_hook_callback(pa_core *c, pa_source *source, void *userdata) {
+Same with source
+  static pa_hook_result_t sink_put_hook_callback(pa_core *c, pa_sink *sink, void *userdata) {
+Enable/disable stopping playback on playing.
+
+Read module-loopback.c for args called in:
+  pa_module_load(&m, c, "module-loopback", args);
+
+  "source=<source to connect to> "
+  "sink=<sink to connect to> "
+
+  If not, it defaults
+
+Note that arguments are saved in:
+struct userdata
+if (u->custom_loopback_sink != nullptr)
+    u->custom_loopback_sink
+
+Understanding loopback:
+source_dont_move=\"true\"
+sink_input_properties= phone or music
+
+source_dont_move
+    Since 1.0. Takes a boolean value. Disallows moving the capture stream to some other than the initial source. Defaults to "false".
+
+sink_dont_move
+    Since 1.0. Takes a boolean value. Disallows moving the playback stream to some other than the initial sink. Defaults to "false".
+
+Since C-style strings are always terminated with the null character (\0), you can check whether the string is empty by writing
+if (st[0] == '\0')
+*/
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -38,7 +73,9 @@ PA_MODULE_LOAD_ONCE(true);
 PA_MODULE_USAGE(
         "auto_switch=<Switch between hsp and a2dp profile? (0 - never, 1 - media.role=phone, 2 - heuristic> "
         "a2dp_source=<Handle a2dp_source card profile (sink role)?> "
-        "ag=<Handle headset_audio_gateway card profile (headset role)?> ");
+        "ag=<Handle headset_audio_gateway card profile (headset role)?> "
+        "_TODO:rgon"
+      );
 
 static const char* const valid_modargs[] = {
     "auto_switch",
@@ -60,6 +97,10 @@ struct userdata {
     pa_hook_slot *card_unlink_slot;
     pa_hook_slot *profile_available_changed_slot;
     pa_hashmap *will_need_revert_card_map;
+
+    // rgon
+    char * custom_loopback_sink;
+    char * custom_loopback_source;
 };
 
 /* When a source is created, loopback it to default sink */
@@ -95,8 +136,14 @@ static pa_hook_result_t source_put_hook_callback(pa_core *c, pa_source *source, 
     }
 
     /* Load module-loopback */
-    args = pa_sprintf_malloc("source=\"%s\" source_dont_move=\"true\" sink_input_properties=\"media.role=%s\"", source->name,
-                             role);
+    if (u->custom_loopback_sink[0] != '\0') {
+        args = pa_sprintf_malloc("source=\"%s\" source_dont_move=\"true\" sink_input_properties=\"media.role=%s\" sink=\"%s\" sink_dont_move=\"true\"", source->name,
+                                 role, u->custom_loopback_sink);
+    } else {
+        args = pa_sprintf_malloc("source=\"%s\" source_dont_move=\"true\" sink_input_properties=\"media.role=%s\"", source->name,
+                                 role);
+    }
+
     (void) pa_module_load(&m, c, "module-loopback", args);
     pa_xfree(args);
 
@@ -134,8 +181,14 @@ static pa_hook_result_t sink_put_hook_callback(pa_core *c, pa_sink *sink, void *
     }
 
     /* Load module-loopback */
-    args = pa_sprintf_malloc("sink=\"%s\" sink_dont_move=\"true\" source_output_properties=\"media.role=%s\"", sink->name,
-                             role);
+    if (u->custom_loopback_source[0] != '\0') {
+        args = pa_sprintf_malloc("source=\"%s\" source_dont_move=\"true\" sink_input_properties=\"media.role=%s\" source=\"%s\" source_dont_move=\"true\"", source->name,
+          role, u->custom_loopback_source);
+    } else {
+        args = pa_sprintf_malloc("sink=\"%s\" sink_dont_move=\"true\" source_output_properties=\"media.role=%s\"", sink->name,
+                                 role);
+    }
+
     (void) pa_module_load(&m, c, "module-loopback", args);
     pa_xfree(args);
 
@@ -446,6 +499,20 @@ int pa__init(pa_module *m) {
         pa_log("Failed to parse ag argument.");
         goto fail;
     }
+
+    // rgon
+    const char *n;
+    n = pa_modargs_get_value(ma, "source", NULL);
+    if (n && !(u->custom_loopback_source = pa_namereg_get(m->core, n, PA_NAMEREG_SOURCE))) {
+        pa_log("No such custom source.");
+        goto fail;
+    }
+
+    if (n && !(u->custom_loopback_sink = pa_namereg_get(m->core, n, PA_NAMEREG_SINK))) {
+        pa_log("No such custom sink.");
+        goto fail;
+    }
+    // endof rgon
 
     u->will_need_revert_card_map = pa_hashmap_new(pa_idxset_trivial_hash_func, pa_idxset_trivial_compare_func);
 
