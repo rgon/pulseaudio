@@ -103,8 +103,8 @@ struct userdata {
     pa_hashmap *will_need_revert_card_map;
 
     // rgon
-    char * custom_loopback_sink;
-    char * custom_loopback_source;
+    const char * custom_loopback_sink;
+    const char * custom_loopback_source;
 };
 
 /* When a source is created, loopback it to default sink */
