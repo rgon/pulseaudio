@@ -139,8 +139,11 @@ static pa_hook_result_t source_put_hook_callback(pa_core *c, pa_source *source, 
         return PA_HOOK_OK;
     }
 
+
     /* Load module-loopback */
     if (u->custom_loopback_sink[0] != '\0') {
+        pa_log_warn("Loading loopback with custom sink: %s", u->custom_loopback_sink);
+
         args = pa_sprintf_malloc("source=\"%s\" source_dont_move=\"true\" sink_input_properties=\"media.role=%s\" sink=\"%s\" sink_dont_move=\"true\"", source->name,
                                  role, u->custom_loopback_sink);
     } else {
