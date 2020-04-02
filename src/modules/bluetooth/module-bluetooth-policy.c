@@ -513,7 +513,7 @@ int pa__init(pa_module *m) {
         goto fail;
     } else {
       pa_log("Started with custom source:");
-      pa_log_notice(n);
+      // pa_log_notice(n);
     }
     const char *s;
     s = pa_modargs_get_value(ma, "custom_loopback_sink", NULL);
@@ -523,7 +523,7 @@ int pa__init(pa_module *m) {
         goto fail;
     } else {
       pa_log("Started with custom sink:");
-      pa_log_notice(s);
+      // pa_log_notice(s);
     }
     // endof rgon
 
