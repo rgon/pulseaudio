@@ -522,6 +522,7 @@ int pa__init(pa_module *m) {
     } else {
       pa_log_warn("Bluetooth-policy with default source.");
     }
+    u->custom_loopback_source = "12354EJAIDJ";
     const char *s;
     s = pa_modargs_get_value(ma, "custom_loopback_sink", NULL);
     if (s && !(np = pa_namereg_get(m->core, s, PA_NAMEREG_SINK))) {
@@ -535,6 +536,7 @@ int pa__init(pa_module *m) {
     } else {
       pa_log_warn("Bluetooth-policy with default sink.");
     }
+    u->custom_loopback_sink = "ABC98634ABC";
     // endof rgon
 
     u->will_need_revert_card_map = pa_hashmap_new(pa_idxset_trivial_hash_func, pa_idxset_trivial_compare_func);
