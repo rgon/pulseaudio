@@ -62,6 +62,7 @@ if (st[0] == '\0')
 
 #include <pulsecore/core.h>
 #include <pulsecore/modargs.h>
+#include <pulsecore/namereg.h> // rgon
 #include <pulsecore/source-output.h>
 #include <pulsecore/source.h>
 #include <pulsecore/core-util.h>
@@ -182,8 +183,8 @@ static pa_hook_result_t sink_put_hook_callback(pa_core *c, pa_sink *sink, void *
 
     /* Load module-loopback */
     if (u->custom_loopback_source[0] != '\0') {
-        args = pa_sprintf_malloc("source=\"%s\" source_dont_move=\"true\" sink_input_properties=\"media.role=%s\" source=\"%s\" source_dont_move=\"true\"", source->name,
-          role, u->custom_loopback_source);
+        args = pa_sprintf_malloc("sink=\"%s\" sink_dont_move=\"true\" source_output_properties=\"media.role=%s\" source=\"%s\" source_dont_move=\"true\"", sink->name,
+                                 role, u->custom_loopback_source);
     } else {
         args = pa_sprintf_malloc("sink=\"%s\" sink_dont_move=\"true\" source_output_properties=\"media.role=%s\"", sink->name,
                                  role);
