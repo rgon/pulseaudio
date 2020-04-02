@@ -506,12 +506,14 @@ int pa__init(pa_module *m) {
 
     // rgon
     const char *n;
+    void * np;
     n = pa_modargs_get_value(ma, "custom_loopback_source", NULL); // default = NULL
-    if (n && !(u->custom_loopback_source = pa_namereg_get(m->core, n, PA_NAMEREG_SOURCE))) {
+    if (n && !(np = pa_namereg_get(m->core, n, PA_NAMEREG_SOURCE))) {
     // if (n && !(pa_namereg_get(m->core, n, PA_NAMEREG_SOURCE))) {
         pa_log("No such custom source.");
         goto fail;
     } else if (n) {
+      u->custom_loopback_source = n;
       pa_log_warn("Started with custom source: %s", n);
       // pa_log_notice(n);
     } else {
@@ -519,11 +521,12 @@ int pa__init(pa_module *m) {
     }
     const char *s;
     s = pa_modargs_get_value(ma, "custom_loopback_sink", NULL);
-    if (s && !(u->custom_loopback_sink = pa_namereg_get(m->core, s, PA_NAMEREG_SINK))) {
+    if (s && !(np = pa_namereg_get(m->core, s, PA_NAMEREG_SINK))) {
     // if (s && !(pa_namereg_get(m->core, s, PA_NAMEREG_SINK))) {
         pa_log("No such custom sink.");
         goto fail;
     } else if (s) {
+      u->custom_loopback_sink = s;
       pa_log_warn("Started with custom sink: %s", s);
       // pa_log_notice(s);
     } else {
