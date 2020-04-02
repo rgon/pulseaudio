@@ -5,22 +5,22 @@ echo "Please run this script as sudo if executed with the 'install' or 'build' p
 fn_run () {
 	pacmd unload-module module-bluetooth-policy
 	pacmd unload-module module-jack-sink
+	pacmd unload-module module-jack-source
 	pacmd unload-module module-loopback
 
-	pacmd load-module module-jack-sink sink_name="OSAppRecord"
-	pacmd load-module module-jack-sink sink_name="BTDevRecord"
-	pacmd load-module module-jack-source source_name="OSAppCapture"
-	pacmd load-module module-jack-source source_name="BTDevCapture"
-
-	pacmd load-module module-bluetooth-policy
+	pacmd load-module module-jack-sink sink_name="jack_OSAppRecord"
+	pacmd load-module module-jack-sink sink_name="jack_BTDevRecord"
+	pacmd load-module module-jack-source source_name="jack_OSAppCapture"
+	pacmd load-module module-jack-source source_name="jack_BTDevCapture"
 
 	pacmd list-sources | grep jack
 	pacmd list-sinks | grep jack
 
-	pacmd load-module module-bluetooth-policy custom_loopback_sink="BTDevRecord" custom_loopback_source="BTDevCapture"
+	pacmd load-module module-bluetooth-policy custom_loopback_sink="jack_BTDevRecord" custom_loopback_source="jack_BTDevCapture"
 }
 
 fn_build () {
+	pulseaudio -k
 	sudo apt remove pulseaudio pulseaudio-utils
 	make clean
 	./bootstrap.sh
