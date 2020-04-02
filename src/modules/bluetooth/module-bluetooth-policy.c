@@ -75,7 +75,8 @@ PA_MODULE_USAGE(
         "auto_switch=<Switch between hsp and a2dp profile? (0 - never, 1 - media.role=phone, 2 - heuristic> "
         "a2dp_source=<Handle a2dp_source card profile (sink role)?> "
         "ag=<Handle headset_audio_gateway card profile (headset role)?> "
-        "_TODO:rgon"
+        "custom_loopback_sink=<source to connect to> "
+        "custom_loopback_source=<sink to connect to> "
       );
 
 static const char* const valid_modargs[] = {
@@ -83,6 +84,8 @@ static const char* const valid_modargs[] = {
     "a2dp_source",
     "ag",
     "hfgw",
+    "custom_loopback_sink",
+    "custom_loopback_source",
     NULL
 };
 
