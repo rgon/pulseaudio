@@ -531,7 +531,7 @@ int pa__init(pa_module *m) {
     // if (s && !(pa_namereg_get(m->core, s, PA_NAMEREG_SINK))) {
         pa_log("No such custom sink.");
         goto fail;
-    } else if (s) {
+    } else if (n) {
       char *stringcopy = malloc(1 + strlen (n))
       strcpy (stringcopy, n);
       u->custom_loopback_sink = stringcopy;
